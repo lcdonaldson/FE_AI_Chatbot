@@ -2,7 +2,6 @@
 import {
     createMessageElement,
     scrollToLatestMessage,
-    getBotResponse,
     handleUserMessage,
   } from "./chatbot.js";
   
@@ -18,9 +17,26 @@ import {
       scrollToLatestMessage(messageContainer);
     }
   
-    function handleSendClick() {
+    async function getBotResponse(userMessage) {
+      try {
+        const response = await fetch("http://localhost:8000/chat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ message: userMessage }),
+        });
+        const data = await response.json();
+        return data.response;
+      } catch (error) {
+        console.error("Error fetching bot response:", error);
+        return "Sorry, something went wrong.";
+      }
+    }
+  
+    async function handleSendClick() {
       const userMessage = userInput.value;
-      const botResponse = handleUserMessage(
+      const botResponse = await handleUserMessage(
         userMessage,
         addMessage,
         getBotResponse
